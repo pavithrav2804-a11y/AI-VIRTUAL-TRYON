@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Result</title>
+
+    <style>
+    body {
+        background-color: #f5f5f5;
+        font-family: Arial;
+        text-align: center;
+    }
+    </style>
+
+</head>
+
+<body>
+
+<h2>Prediction: {{ prediction }}</h2>
+
+<img src="{{ img_path }}" width="300" style="border-radius:10px;">
+
+<br><br>
+
+<h3>Skin Tone: {{ skin_tone }}</h3>
+
+<h3>Suggested Colors:</h3>
+<ul style="list-style:none;">
+{% for c in colors %}
+<li>{{ c }}</li>
+{% endfor %}
+</ul>
+
+<h3>Accessories:</h3>
+
+<div style="display:flex; justify-content:center; flex-wrap:wrap;">
+{% for a in accessories %}
+    <img src="{{ url_for('static', filename='accessories/' + a) }}"
+         width="120"
+         style="margin:10px; border-radius:10px;">
+{% endfor %}
+</div>
+
+<h3>Recommended Outfits:</h3>
+
+<div style="display:flex; justify-content:center; flex-wrap:wrap;">
+{% for img in outfit_images %}
+    <img src="{{ url_for('static', filename=img) }}"
+         width="150"
+         style="margin:10px; border-radius:10px;">
+{% endfor %}
+</div>
+
+<br>
+
+<a href="/">Go Back</a>
+
+</body>
+</html>
