@@ -1,0 +1,8 @@
+<h2>Wardrobe History</h2>
+
+{% for item in data %}
+    <div>
+        <img src="{{ url_for('static', filename=item.image) }}" width="100">
+        <p>{{ item.category }} | {{ item.skin_tone }} | {{ item.style }}</p>
+    </div>
+{% endfor %}
