@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, url_for
+from flask import Flask, render_template, request, url_for, jsonify
 from werkzeug.utils import secure_filename
 import logging
 import os
@@ -260,44 +260,32 @@ def home():
 @app.route('/predict', methods=['POST'])
 def predict():
 
-    # Validate file
     if 'file' not in request.files:
-        return render_template("index.html", error="Please upload a photo.")
+        return jsonify({"error": "No file uploaded"}), 400
 
     file = request.files['file']
 
-    if file.filename == '':
-        return render_template("index.html", error="No file selected.")
+    if file.filename == '' or not allowed_file(file.filename):
+        return jsonify({"error": "Invalid file. Use JPG or PNG."}), 400
 
-    if not allowed_file(file.filename):
-        return render_template("index.html", error="Invalid file type. Use JPG or PNG.")
-
-    # Save uploaded person photo
     person_path, person_rel = save_upload(file)
 
-    # ── Detect skin tone from person photo ────────────────────────────────────
     skin_tone = get_skin_tone(person_path)
     skin_data = SKIN_OUTFITS.get(skin_tone, SKIN_OUTFITS["Medium"])
 
-    # ── Get outfit recommendations based on skin tone ─────────────────────────
-    outfit_images = get_outfit_images(skin_tone)
-
-    return render_template(
-        "result.html",
-        img_path       = person_rel,
-        skin_tone      = skin_tone,
-        fitzpatrick    = skin_data["fitzpatrick"],
-        undertone      = skin_data["undertone"],
-        best_colors    = skin_data["best_colors"],
-        avoid_colors   = skin_data["avoid_colors"],
-        skin_accessory = skin_data["accessories"],
-        tip            = skin_data["tip"],
-        outfit_casual       = skin_data["outfits"]["Casual"],
-        outfit_party        = skin_data["outfits"]["Party"],
-        outfit_professional = skin_data["outfits"]["Professional"],
-        outfit_traditional  = skin_data["outfits"]["Traditional"],
-        outfit_images  = outfit_images,
-    )
+    return jsonify({
+        "skin_tone":           skin_tone,
+        "fitzpatrick":         skin_data["fitzpatrick"],
+        "undertone":           skin_data["undertone"],
+        "best_colors":         skin_data["best_colors"],
+        "avoid_colors":        skin_data["avoid_colors"],
+        "skin_accessory":      skin_data["accessories"],
+        "tip":                 skin_data["tip"],
+        "outfit_casual":       skin_data["outfits"]["Casual"],
+        "outfit_party":        skin_data["outfits"]["Party"],
+        "outfit_professional": skin_data["outfits"]["Professional"],
+        "outfit_traditional":  skin_data["outfits"]["Traditional"],
+    })
 
 
 if __name__ == "__main__":
