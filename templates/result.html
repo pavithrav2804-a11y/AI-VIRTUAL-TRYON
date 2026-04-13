@@ -2,60 +2,245 @@
 <html>
 <head>
     <title>Result</title>
-
     <style>
-       body {
+        body {
             font-family: Arial, sans-serif;
             background: linear-gradient(to right, #667eea, #764ba2);
             margin: 0;
-            padding: 0;
+            padding: 20px 16px 40px;
             color: white;
             text-align: center;
         }
-    </style>
 
+        img {
+            box-shadow: 0px 4px 10px rgba(0,0,0,0.3);
+        }
+
+        a {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 20px;
+            background: white;
+            color: black;
+            text-decoration: none;
+            border-radius: 10px;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        /* ── Skin Tone Card ── */
+        .skin-card {
+            background: rgba(255,255,255,0.12);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255,255,255,0.25);
+            border-radius: 18px;
+            padding: 24px 20px;
+            margin: 24px auto;
+            max-width: 600px;
+            text-align: left;
+        }
+
+        .skin-card h3 {
+            font-size: 18px;
+            margin-bottom: 16px;
+            text-align: center;
+            letter-spacing: 0.5px;
+        }
+
+        .skin-meta {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 18px;
+            justify-content: center;
+        }
+
+        .meta-pill {
+            background: rgba(255,255,255,0.18);
+            border-radius: 30px;
+            padding: 6px 16px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        /* Color tags */
+        .color-row      { margin-bottom: 14px; }
+        .color-row label {
+            font-size: 12px;
+            opacity: 0.75;
+            display: block;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .color-tags     { display: flex; flex-wrap: wrap; gap: 6px; }
+
+        .tag-yes {
+            background: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.5);
+            border-radius: 20px;
+            padding: 4px 12px;
+            font-size: 12px;
+        }
+
+        .tag-no {
+            background: rgba(0,0,0,0.15);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 20px;
+            padding: 4px 12px;
+            font-size: 12px;
+            text-decoration: line-through;
+            opacity: 0.65;
+        }
+
+        /* Tip box */
+        .tip-box {
+            background: rgba(255,255,255,0.15);
+            border-left: 3px solid white;
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-size: 13px;
+            line-height: 1.6;
+            margin-bottom: 18px;
+        }
+
+        /* Occasion outfits */
+        .occasion-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+
+        .occasion-box {
+            background: rgba(255,255,255,0.12);
+            border-radius: 10px;
+            padding: 10px 12px;
+        }
+
+        .occasion-box .occ-label {
+            font-size: 11px;
+            opacity: 0.7;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+
+        .occasion-box .occ-text {
+            font-size: 12px;
+            line-height: 1.5;
+            font-weight: 500;
+        }
+
+        /* Accessory list */
+        .acc-list {
+            font-size: 13px;
+            opacity: 0.9;
+            line-height: 1.8;
+        }
+    </style>
 </head>
 
 <body>
 
-<h2>Prediction: {{ prediction }}</h2>
+    <h2>Your Style Analysis 🎨</h2>
 
-<img src="{{ url_for('static', filename=img_path) }}" width="300" style="border-radius:10px;">
+    <!-- Uploaded Photo -->
+    <img src="{{ url_for('static', filename=img_path) }}"
+         width="260"
+         style="border-radius:14px; margin-bottom:10px;">
 
-<br><br>
+    <!-- ═══════════════════════════════════════════════
+         SKIN TONE ANALYSIS CARD  (new section)
+    ════════════════════════════════════════════════ -->
+    <div class="skin-card">
+        <h3>🎨 Skin Tone Analysis</h3>
 
-<h3>Skin Tone: {{ skin_tone }}</h3>
+        <!-- Detected tone + fitzpatrick + undertone -->
+        <div class="skin-meta">
+            <div class="meta-pill">Skin Tone: {{ skin_tone }}</div>
+            <div class="meta-pill">{{ fitzpatrick }}</div>
+            <div class="meta-pill">Undertone: {{ undertone }}</div>
+        </div>
 
-<h3>Suggested Colors:</h3>
-<ul style="list-style:none;">
-{% for c in colors %}
-<li>{{ c }}</li>
-{% endfor %}
-</ul>
+        <!-- Style tip -->
+        <div class="tip-box">
+            💡 {{ tip }}
+        </div>
 
-<h3>Accessories:</h3>
+        <!-- Best colors -->
+        <div class="color-row">
+            <label>✅ Best Colors for You</label>
+            <div class="color-tags">
+                {% for c in best_colors %}
+                    <span class="tag-yes">{{ c }}</span>
+                {% endfor %}
+            </div>
+        </div>
 
-<div style="display:flex; justify-content:center; flex-wrap:wrap;">
-{% for a in accessories %}
-    <img src="{{ url_for('static', filename='accessories/' + a) }}"
-         width="120"
-         style="margin:10px; border-radius:10px;">
-{% endfor %}
-</div>
+        <!-- Avoid colors -->
+        <div class="color-row">
+            <label>❌ Colors to Avoid</label>
+            <div class="color-tags">
+                {% for c in avoid_colors %}
+                    <span class="tag-no">{{ c }}</span>
+                {% endfor %}
+            </div>
+        </div>
 
-<h3>Recommended Outfits:</h3>
+        <!-- Occasion outfits -->
+        <div class="color-row">
+            <label>👗 Outfit Suggestions by Occasion</label>
+            <div class="occasion-grid">
+                <div class="occasion-box">
+                    <div class="occ-label">👟 Casual</div>
+                    <div class="occ-text">{{ outfit_casual }}</div>
+                </div>
+                <div class="occasion-box">
+                    <div class="occ-label">🎉 Party</div>
+                    <div class="occ-text">{{ outfit_party }}</div>
+                </div>
+                <div class="occasion-box">
+                    <div class="occ-label">💼 Professional</div>
+                    <div class="occ-text">{{ outfit_professional }}</div>
+                </div>
+                <div class="occasion-box">
+                    <div class="occ-label">🪔 Traditional</div>
+                    <div class="occ-text">{{ outfit_traditional }}</div>
+                </div>
+            </div>
+        </div>
 
-<div style="display:flex; justify-content:center; flex-wrap:wrap;">
-{% for img in outfit_images %}
-    <img src="{{ url_for('static', filename=img) }}"
-         width="150"
-         style="margin:10px; border-radius:10px;">
-{% endfor %}
-</div>
+        <!-- Accessories -->
+        <div class="color-row">
+            <label>💍 Accessories</label>
+            <div class="acc-list">
+                {{ skin_accessory | join(' &nbsp;•&nbsp; ') }}
+            </div>
+        </div>
 
-<br>
+    </div>
+    <!-- ═══════════════════════════════════════════════
+         END SKIN TONE SECTION
+    ════════════════════════════════════════════════ -->
 
-<a href="/">Go Back</a>
+    <!-- Recommended Outfit Images from Dataset -->
+    {% if outfit_images %}
+    <h3>Recommended Outfits for Your Tone 👗</h3>
+    <div style="display:flex; justify-content:center; flex-wrap:wrap; gap:10px; margin-bottom:20px;">
+        {% for outfit in outfit_images %}
+            <img src="{{ url_for('static', filename=outfit) }}"
+                 width="150"
+                 style="border-radius:10px;">
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Back Button -->
+    <a href="/">← Try Another Photo</a>
 
 </body>
 </html>

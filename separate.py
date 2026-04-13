@@ -28,4 +28,4 @@ for i, row in df.iterrows():
     except:
         continue
 
-print("✅ DATASET CREATED CORRECTLY!")
+print("DATASET CREATED CORRECTLY")
